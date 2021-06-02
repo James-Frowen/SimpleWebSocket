@@ -9,5 +9,5 @@ plugins:
       pkgRoot: 'Assets/MyPlugin'
   - - '@semantic-release/git'
     - assets:
-      - 'Assets/MyPlugin/package.json'
-      - 'Assets/MyPlugin/CHANGELOG.md'
+      - 'Assets/SimpleWebSocket/package.json'
+      - 'Assets/SimpleWebSocket/CHANGELOG.md'

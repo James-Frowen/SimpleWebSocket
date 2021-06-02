@@ -1,7 +1,6 @@
 {
   "dependencies": {
-    "com.cysharp.unitask": "2.0.37",
-    "com.mirrorng.mirrorng": "61.0.0",
+    "com.miragenet.mirage": "96.1.2",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ads": "3.5.2",
@@ -55,7 +54,7 @@
       "url": "https://package.openupm.com",
       "scopes": [
         "com.cysharp.unitask",
-        "com.mirrorng.mirrorng",
+        "com.miragenet.mirage",
         "com.openupm"
       ]
     }
