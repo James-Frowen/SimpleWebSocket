@@ -7,8 +7,11 @@ using EventType = JamesFrowen.SimpleWeb.EventType;
 
 namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 {
-    public sealed class WebSocketFactory : SocketFactory
+    public sealed class WebSocketFactory : SocketFactory, IHasAddress, IHasPort
     {
+        string IHasAddress.Address { get => address; set => address = value; }
+        int IHasPort.Port { get => port; set => port = value; }
+
         public string address = "localhost";
         public int port = 7777;
         public TcpConfig tcpConfig;
@@ -21,6 +24,33 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         [Tooltip("Path to json file that contains path to cert and its password\n\nUse Json file so that cert password is not included in client builds\n\nSee cert.example.Json")]
         public string sslCertJson = "./cert.json";
         public SslProtocols sslProtocols = SslProtocols.Tls12;
+
+        [Header("Debug")]
+        [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed. DEBUG allows warn/error, SIMPLEWEB_LOG_ENABLED allows all")]
+        [SerializeField] Log.Levels _logLevels = Log.Levels.none;
+
+        /// <summary>
+        /// <para>Gets _logLevels field</para>
+        /// <para>Sets _logLevels and Log.level fields</para>
+        /// </summary>
+        public Log.Levels LogLevels
+        {
+            get => _logLevels;
+            set
+            {
+                _logLevels = value;
+                Log.level = _logLevels;
+            }
+        }
+
+        void OnValidate()
+        {
+            Log.level = _logLevels;
+        }
+        void Awake()
+        {
+            Log.level = _logLevels;
+        }
 
         public override ISocket CreateClientSocket()
         {
@@ -152,7 +182,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         public void Bind(IEndPoint endPoint)
         {
             pool = new JamesFrowen.SimpleWeb.BufferPool(5, 20, maxMessageSize);
-            server = new WebSocketServer(tcpConfig, maxMessageSize, handshakeMaxSize, sslConfig, pool);
+            server = new WebSocketServer(tcpConfig, maxMessageSize, Math.Min(maxMessageSize, handshakeMaxSize), sslConfig, pool);
 
             var swEndPoint = (SimpleWebEndPoint)endPoint;
             server.Listen(swEndPoint.Port);
