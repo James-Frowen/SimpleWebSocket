@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AOT;
 
 namespace JamesFrowen.SimpleWeb
@@ -12,6 +13,12 @@ namespace JamesFrowen.SimpleWeb
         /// key for instances sent between c# and js
         /// </summary>
         int index;
+
+        /// <summary>
+        /// Mesasge sent by high level while still connecting, they will be send after onOpen is called
+        /// <para>this is a workaround for mirage where send it called right after Connect</para>
+        /// </summary>
+        Queue<byte[]> ConnectingSendQueue;
 
         internal WebSocketClientWebGl(int maxMessageSize, int maxMessagesPerTick) : base(maxMessageSize, maxMessagesPerTick)
         {
@@ -27,6 +34,7 @@ namespace JamesFrowen.SimpleWeb
             index = SimpleWebJSLib.Connect(serverAddress.ToString(), OpenCallback, CloseCallBack, MessageCallback, ErrorCallback);
             instances.Add(index, this);
             state = ClientState.Connecting;
+            ConnectingSendQueue = new Queue<byte[]>();
         }
 
         public override void Disconnect()
@@ -44,13 +52,26 @@ namespace JamesFrowen.SimpleWeb
                 return;
             }
 
-            SimpleWebJSLib.Send(index, segment.Array, 0, segment.Count);
+            if (state == ClientState.Connected)
+            {
+                SimpleWebJSLib.Send(index, segment.Array, segment.Offset, segment.Count);
+            }
+            else
+            {
+                ConnectingSendQueue.Enqueue(segment.ToArray());
+            }
         }
 
         void onOpen()
         {
             receiveQueue.Enqueue(new Message(EventType.Connected));
             state = ClientState.Connected;
+            while (ConnectingSendQueue.Count > 0)
+            {
+                byte[] next = ConnectingSendQueue.Dequeue();
+                SimpleWebJSLib.Send(index, next, 0, next.Length);
+            }
+            ConnectingSendQueue = null;
         }
 
         void onClose()
