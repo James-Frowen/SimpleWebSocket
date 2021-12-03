@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
 using System.Security.Authentication;
 using JamesFrowen.SimpleWeb;
 using Mirage.SocketLayer;
@@ -29,7 +26,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         {
             // todo get max message size somewhere else?
             SslConfig sslConfig = SslConfigLoader.Load(sslEnabled || clientUseWss, sslCertJson, sslProtocols);
-            return new ClientWebSocket(tcpConfig, new Config().BufferSize, sslConfig);
+            return new ClientWebSocket(tcpConfig, new Config().MaxPacketSize, sslConfig);
         }
 
         public override ISocket CreateServerSocket()
@@ -41,55 +38,84 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 
             // todo get max message size somewhere else?
             SslConfig sslConfig = SslConfigLoader.Load(sslEnabled || clientUseWss, sslCertJson, sslProtocols);
-            return new ServerWebSocket(tcpConfig, new Config().BufferSize, sslConfig);
+            return new ServerWebSocket(tcpConfig, new Config().MaxPacketSize, sslConfig);
         }
 
-        public override EndPoint GetBindEndPoint()
+        public override IEndPoint GetBindEndPoint()
         {
-            return new IPEndPoint(IPAddress.IPv6Any, port);
+            return new SimpleWebEndPoint(default, port);
         }
 
-        public override EndPoint GetConnectEndPoint(string address = null, ushort? port = null)
+        public override IEndPoint GetConnectEndPoint(string address = null, ushort? port = null)
         {
             string addressString = address ?? this.address;
-            IPAddress ipAddress = getAddress(addressString);
-
             ushort portIn = port ?? (ushort)this.port;
 
-            return new IPEndPoint(ipAddress, portIn);
-        }
-
-        private IPAddress getAddress(string addressString)
-        {
-            if (IPAddress.TryParse(addressString, out IPAddress address))
-                return address;
-
-            IPAddress[] results = Dns.GetHostAddresses(addressString);
-            if (results.Length == 0)
-            {
-                throw new SocketException((int)SocketError.HostNotFound);
-            }
-            else
-            {
-                return results[0];
-            }
+            return new SimpleWebEndPoint(addressString, portIn);
         }
 
         private static bool IsWebgl => Application.platform == RuntimePlatform.WebGLPlayer;
     }
-    public class SimpleWebEndPoint : EndPoint, IEquatable<SimpleWebEndPoint>
+
+    public class SimpleWebEndPoint : IEndPoint
     {
-        public string address;
-        public int port;
+        public string HostName;
+        public ushort Port;
         internal int ConnectionId;
 
-        public bool Equals(SimpleWebEndPoint other)
+        public SimpleWebEndPoint(string hostName, int port) : this(hostName, checked((ushort)port)) { }
+        public SimpleWebEndPoint(string hostName, ushort port)
         {
-            throw new NotImplementedException();
+            HostName = hostName;
+            Port = port;
         }
+        internal SimpleWebEndPoint() { }
+        private SimpleWebEndPoint(SimpleWebEndPoint other)
+        {
+            HostName = other.HostName;
+            Port = other.Port;
+            ConnectionId = other.ConnectionId;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SimpleWebEndPoint other)
+            {
+                if (ConnectionId == other.ConnectionId)
+                {
+                    // if it has id, then they are the same
+                    if (ConnectionId != 0)
+                        return true;
+
+                    // if no idea, check if other props are equal
+                    return HostName.Equals(other.HostName) && Port.Equals(other.Port);
+                }
+
+
+                return false;
+            }
+            return false;
+        }
+
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            if (ConnectionId != 0)
+                return ConnectionId;
+
+            return HostName.GetHashCode() ^ Port.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            if (ConnectionId != 0)
+                return $"Active connection:{ConnectionId}";
+            else
+                return $"{HostName}:{Port}";
+        }
+
+        IEndPoint IEndPoint.CreateCopy()
+        {
+            return new SimpleWebEndPoint(this);
         }
     }
     public enum SimpleWebSocketDisconnectReasons
@@ -114,7 +140,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         private JamesFrowen.SimpleWeb.BufferPool pool;
         private WebSocketServer server;
 
-        Dictionary<int, SimpleWebEndPoint> endpoints = new Dictionary<int, SimpleWebEndPoint>();
+        SimpleWebEndPoint ReceiveEndpoint = new SimpleWebEndPoint();
 
         public ServerWebSocket(TcpConfig tcpConfig, int maxMessageSize, SslConfig sslConfig)
         {
@@ -123,13 +149,13 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             this.sslConfig = sslConfig;
         }
 
-        public void Bind(EndPoint endPoint)
+        public void Bind(IEndPoint endPoint)
         {
             pool = new JamesFrowen.SimpleWeb.BufferPool(5, 20, maxMessageSize);
             server = new WebSocketServer(tcpConfig, maxMessageSize, handshakeMaxSize, sslConfig, pool);
 
             var swEndPoint = (SimpleWebEndPoint)endPoint;
-            server.Listen(swEndPoint.port);
+            server.Listen(swEndPoint.Port);
         }
 
         public void Close()
@@ -137,7 +163,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             server?.Stop();
         }
 
-        public void Connect(EndPoint endPoint)
+        public void Connect(IEndPoint endPoint)
         {
             throw new NotSupportedException();
         }
@@ -147,24 +173,23 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             return server.receiveQueue.Count > 0;
         }
 
-        public int Receive(byte[] buffer, out EndPoint endPoint)
+        public int Receive(byte[] buffer, out IEndPoint endPoint)
         {
-            bool result = server.receiveQueue.TryDequeue(out Message next);
+            bool result = server.receiveQueue.TryDequeue(out Message message);
             if (!result)
             {
                 throw new InvalidOperationException("No Packets in queue");
             }
 
-            switch (next.type)
+            endPoint = ReceiveEndpoint;
+            ReceiveEndpoint.ConnectionId = message.connId;
+
+            switch (message.type)
             {
                 case EventType.Connected:
                     {
-
                         // do nothing with connected event?
                         // Peer will do its own handshake using data
-                        var swEndPoint = new SimpleWebEndPoint() { ConnectionId = next.connId };
-                        endPoint = swEndPoint;
-                        endpoints.Add(next.connId, swEndPoint);
 
                         // use keep alive so this packet can just be thrown away
                         buffer[0] = (byte)PacketType.KeepAlive;
@@ -172,31 +197,18 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
                     }
                 case EventType.Data:
                     {
-                        SimpleWebEndPoint swEndPoint = endpoints[next.connId];
-                        endPoint = swEndPoint;
-
-                        next.data.CopyTo(buffer, 0);
-                        int count = next.data.count;
-                        next.data.Release();
+                        message.data.CopyTo(buffer, 0);
+                        int count = message.data.count;
+                        message.data.Release();
                         return count;
                     }
                 case EventType.Error:
                 case EventType.Disconnected:
                     {
-                        if (endpoints.TryGetValue(next.connId, out SimpleWebEndPoint swEndPoint))
-                        {
-                            endPoint = swEndPoint;
-                            endpoints.Remove(next.connId);
-
-                            buffer[0] = (byte)PacketType.Command;
-                            buffer[1] = (byte)Commands.Disconnect;
-                            buffer[2] = (byte)(next.type == EventType.Disconnected ? SimpleWebSocketDisconnectReasons.SocketClosed : SimpleWebSocketDisconnectReasons.SocketError);
-                            return 3;
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        buffer[0] = (byte)PacketType.Command;
+                        buffer[1] = (byte)Commands.Disconnect;
+                        buffer[2] = (byte)(message.type == EventType.Disconnected ? SimpleWebSocketDisconnectReasons.SocketClosed : SimpleWebSocketDisconnectReasons.SocketError);
+                        return 3;
                     }
             }
 
@@ -205,7 +217,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             return 0;
         }
 
-        public void Send(EndPoint endPoint, byte[] packet, int length)
+        public void Send(IEndPoint endPoint, byte[] packet, int length)
         {
             var swEndPoint = (SimpleWebEndPoint)endPoint;
 
@@ -227,7 +239,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         private JamesFrowen.SimpleWeb.BufferPool pool;
         private SimpleWebClient client;
 
-        SimpleWebEndPoint remoteEndpoint;
+        SimpleWebEndPoint ReceiveEndpoint;
 
         public ClientWebSocket(TcpConfig tcpConfig, int maxMessageSize, SslConfig sslConfig)
         {
@@ -236,26 +248,27 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             this.sslConfig = sslConfig;
         }
 
-        public void Bind(EndPoint endPoint)
+        public void Bind(IEndPoint endPoint)
         {
             throw new NotSupportedException();
         }
 
         public void Close()
         {
-            throw new NotImplementedException();
+            client?.Disconnect();
+            client = null;
         }
 
-        public void Connect(EndPoint endPoint)
+        public void Connect(IEndPoint endPoint)
         {
             client = SimpleWebClient.Create(maxMessageSize, 10_000, tcpConfig);
 
-            remoteEndpoint = (SimpleWebEndPoint)endPoint;
+            ReceiveEndpoint = (SimpleWebEndPoint)endPoint;
             var builder = new UriBuilder
             {
                 Scheme = GetClientScheme(),
-                Host = remoteEndpoint.address,
-                Port = remoteEndpoint.port
+                Host = ReceiveEndpoint.HostName,
+                Port = ReceiveEndpoint.Port
             };
 
             client.Connect(builder.Uri);
@@ -267,9 +280,9 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             return client.receiveQueue.Count > 0;
         }
 
-        public int Receive(byte[] buffer, out EndPoint endPoint)
+        public int Receive(byte[] buffer, out IEndPoint endPoint)
         {
-            endPoint = remoteEndpoint;
+            endPoint = ReceiveEndpoint;
 
             bool result = client.receiveQueue.TryDequeue(out Message next);
             if (!result)
@@ -281,10 +294,6 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             {
                 case EventType.Connected:
                     {
-                        // do nothing with connected event?
-                        // Peer will do its own handshake using data
-                        remoteEndpoint = new SimpleWebEndPoint();
-
                         // use keep alive so this packet can just be thrown away
                         buffer[0] = (byte)PacketType.KeepAlive;
                         return 1;
@@ -312,9 +321,8 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             return 0;
         }
 
-        public void Send(EndPoint endPoint, byte[] packet, int length)
+        public void Send(IEndPoint endPoint, byte[] packet, int length)
         {
-            Debug.Assert(endPoint == remoteEndpoint);
             client.Send(new ArraySegment<byte>(packet, 0, length));
         }
     }
