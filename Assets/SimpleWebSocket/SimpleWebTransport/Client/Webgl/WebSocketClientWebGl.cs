@@ -15,7 +15,7 @@ namespace JamesFrowen.SimpleWeb
         int index;
 
         /// <summary>
-        /// Mesasge sent by high level while still connecting, they will be send after onOpen is called
+        /// Message sent by high level while still connecting, they will be send after onOpen is called
         /// <para>this is a workaround for mirage where send it called right after Connect</para>
         /// </summary>
         Queue<byte[]> ConnectingSendQueue;
@@ -34,7 +34,6 @@ namespace JamesFrowen.SimpleWeb
             index = SimpleWebJSLib.Connect(serverAddress.ToString(), OpenCallback, CloseCallBack, MessageCallback, ErrorCallback);
             instances.Add(index, this);
             state = ClientState.Connecting;
-            ConnectingSendQueue = new Queue<byte[]>();
         }
 
         public override void Disconnect()
@@ -58,6 +57,8 @@ namespace JamesFrowen.SimpleWeb
             }
             else
             {
+                if (ConnectingSendQueue == null)
+                    ConnectingSendQueue = new Queue<byte[]>();
                 ConnectingSendQueue.Enqueue(segment.ToArray());
             }
         }
@@ -66,12 +67,16 @@ namespace JamesFrowen.SimpleWeb
         {
             receiveQueue.Enqueue(new Message(EventType.Connected));
             state = ClientState.Connected;
-            while (ConnectingSendQueue.Count > 0)
+
+            if (ConnectingSendQueue != null)
             {
-                byte[] next = ConnectingSendQueue.Dequeue();
-                SimpleWebJSLib.Send(index, next, 0, next.Length);
+                while (ConnectingSendQueue.Count > 0)
+                {
+                    byte[] next = ConnectingSendQueue.Dequeue();
+                    SimpleWebJSLib.Send(index, next, 0, next.Length);
+                }
+                ConnectingSendQueue = null;
             }
-            ConnectingSendQueue = null;
         }
 
         void onClose()
