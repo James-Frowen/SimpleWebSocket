@@ -1,18 +1,13 @@
 {
     "name": "com.mirrorng.simplewebsocket",
     "displayName": "SimpleWebSocket for Mirage",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "unity": "2019.4",
-    "description": "Websocket support for Mirage.",
+    "description": "Websocket support for Mirage using SimpleWebTransporet",
     "author": "James Frowen",
     "dependencies": {
-        "com.miragenet.mirage": "96.1.2"
+        "com.miragenet.mirage": "113.1.2",
+        "com.james-frowen.simplewebtransport": "1.2.0"
     },
-    "samples": [
-        {
-            "displayName": "Basic Setup",
-            "description": "Demonstrates how to set up NetworkManager and connect using WebSockets",
-            "path": "Samples~/BasicExample"
-        }
-    ]
+    "samples": []
 }
