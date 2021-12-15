@@ -6,7 +6,7 @@ plugins:
     - changelogFile: 'Assets/MyPlugin/CHANGELOG.md'
   - - '@semantic-release/npm'
     - npmPublish: false,
-      pkgRoot: 'Assets/MyPlugin'
+      pkgRoot: 'Assets/SimpleWebSocket'
   - - '@semantic-release/git'
     - assets:
       - 'Assets/SimpleWebSocket/package.json'

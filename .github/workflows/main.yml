@@ -1,4 +1,4 @@
-name: CI
+name: Test and Release
 
 on: 
   push:
@@ -6,105 +6,55 @@ on:
       - 'doc/**'
       - '*.md'
   
+
 jobs:
-  requestActivationFile:
-    runs-on: ubuntu-latest
-    if: false
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Request manual activation file
-        uses: MirrorNG/unity-runner@3.1.0
-        id: getManualLicenseFile
-        with:
-            entrypoint: /request_activation.sh
-
-      - name: Expose as artifact
-        uses: actions/upload-artifact@v1
-        with:
-            name: Manual Activation File
-            path: ${{ steps.getManualLicenseFile.outputs.filePath }}
-    
   CI:
     name: Test
     runs-on: ubuntu-latest
+    # available list of containers here:
+    # https://hub.docker.com/r/unityci/editor/tags?page=1&ordering=last_updated&name=ubuntu-2020.1.17f1-base
+    container: unityci/editor:ubuntu-2020.1.17f1-base-0.10.0
     env:
-      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-    if: true
-    steps:
-  
-      # Checkout repository (required to test local actions)
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-        
-      - name: Activate license
-        uses: MirrorNG/unity-runner@3.1.0
-        with:
-          entrypoint: /activate.sh
-          
-      - name: Generate Solution
-        uses: MirrorNG/unity-runner@3.1.0
-        with:
-          # Arguments to pass to unity
-          args: -buildTarget StandaloneWindows64 -customBuildName MirrorNG -customBuildPath ./build/StandaloneWindows64 -projectPath . -executeMethod  UnityEditor.SyncVS.SyncSolution -quit
-  
-      # Configure test runner
-      - name: Run editor Tests
-        uses: MirrorNG/unity-runner@3.1.0
-        with:
-          args: -runTests -testPlatform editmode -testResults Tests/editmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
-          
-      - name: Run play Tests
-        uses: MirrorNG/unity-runner@3.1.0
-        with:
-          args: -runTests -testPlatform playmode -testResults Tests/playmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
-  
-      # Upload artifacts
-      - name: Archive test results
-        uses: actions/upload-artifact@v1
-        if: always()
-        with:
-          name: Test results
-          path: Tests
+      DOTNET_ROOT: '/opt/unity/Editor/Data/NetCore/Sdk-2.2.107'
 
-      - name: Publish test results
-        uses: MirrorNG/nunit-reporter@v1.0.9
-        if: always()
+    steps:
+      - name: Activate unity
+        # exit code is 1 for manual activation
+        continue-on-error: true
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE2 }}
+        run: |          
+          echo "$UNITY_LICENSE" | tr -d '\r' > UnityLicenseFile.ulf
+          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile UnityLicenseFile.ulf -quit 
+      
+      - name: Checkout repository
+        uses: actions/checkout@v1
+
+      - name: Cache Library
+        id: cache-library
+        uses: actions/cache@v2
         with:
-          path: "Tests/*.xml"
-          access-token: ${{ secrets.GITHUB_TOKEN }}
-  
+          path: Library
+          key: Library-2020.1.17
+      
+      # make sure Solution can be generated, if it cant then there is probably a compile error
+      - name: Generate Solution
+        run: unity-editor -nographics -logFile /dev/stdout -customBuildName Mirage -projectPath . -executeMethod  UnityEditor.SyncVS.SyncSolution -quit
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
       - name: Release
-        id: semantic
         uses: cycjimmy/semantic-release-action@v2
+        id: semantic
         with:
           extra_plugins: |
             @semantic-release/exec
             @semantic-release/changelog
             @semantic-release/git
-          branch: main
+          branch: master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
-      - name: SonarQube analysis
-        if: always()
-        uses: MirrorNG/unity-runner@3.1.0
-        with:
-          entrypoint: /sonar-scanner.sh
-          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
-          projectName: ${{ secrets.SONAR_PROJECT_NAME }} 
-          sonarOrganisation: mirrorng
-          beginArguments: >-
-            /d:sonar.verbose="false" 
-            ${{ steps.semantic.outputs.new_release_published == 'true' && format('/v:{0}',steps.semantic.outputs.new_release_version) || '' }}
-            /d:sonar.cs.nunit.reportsPaths=Tests/editmode-results.xml,Tests/playmode-results.xml 
-            /d:sonar.cs.opencover.reportsPaths=Tests/workspace-opencov/EditMode/TestCoverageResults_0000.xml,Tests/workspace-opencov/PlayMode/TestCoverageResults_0000.xml
-        env:
-          FrameworkPathOverride: /opt/Unity/Editor/Data/MonoBleedingEdge/
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          
+            
