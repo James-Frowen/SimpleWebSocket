@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-     - master
+     - main
   
 jobs:
   Release:
@@ -23,6 +23,6 @@ jobs:
             @semantic-release/exec
             @semantic-release/changelog
             @semantic-release/git
-          branch: master
+          branch: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
