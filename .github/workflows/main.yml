@@ -1,53 +1,23 @@
-name: Test and Release
+name: Release
 
 on: 
+  workflow_dispatch:
   push:
-    paths-ignore:
-      - 'doc/**'
-      - '*.md'
+    branches:
+     - master
   
-
 jobs:
-  CI:
-    name: Test
-    runs-on: ubuntu-latest
-    # available list of containers here:
-    # https://hub.docker.com/r/unityci/editor/tags?page=1&ordering=last_updated&name=ubuntu-2020.1.17f1-base
-    container: unityci/editor:ubuntu-2020.1.17f1-base-0.10.0
-    env:
-      DOTNET_ROOT: '/opt/unity/Editor/Data/NetCore/Sdk-2.2.107'
-
+  Release:
+    runs-on: windows-latest
     steps:
-      - name: Activate unity
-        # exit code is 1 for manual activation
-        continue-on-error: true
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE2 }}
-        run: |          
-          echo "$UNITY_LICENSE" | tr -d '\r' > UnityLicenseFile.ulf
-          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile UnityLicenseFile.ulf -quit 
-      
       - name: Checkout repository
-        uses: actions/checkout@v1
-
-      - name: Cache Library
-        id: cache-library
-        uses: actions/cache@v2
+        uses: actions/checkout@v2
         with:
-          path: Library
-          key: Library-2020.1.17
-      
-      # make sure Solution can be generated, if it cant then there is probably a compile error
-      - name: Generate Solution
-        run: unity-editor -nographics -logFile /dev/stdout -customBuildName Mirage -projectPath . -executeMethod  UnityEditor.SyncVS.SyncSolution -quit
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Release
         uses: cycjimmy/semantic-release-action@v2
-        id: semantic
         with:
           extra_plugins: |
             @semantic-release/exec
@@ -56,5 +26,3 @@ jobs:
           branch: master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            
