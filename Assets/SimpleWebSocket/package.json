@@ -7,7 +7,7 @@
     "author": "James Frowen",
     "dependencies": {
         "com.miragenet.mirage": "113.1.2",
-        "com.james-frowen.simplewebtransport": "1.2.0"
+        "com.james-frowen.simplewebtransport": "1.2.4"
     },
     "samples": []
 }
