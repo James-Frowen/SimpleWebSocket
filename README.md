@@ -10,4 +10,20 @@ This uses [SimpleWebTransport](https://github.com/James-Frowen/SimpleWebTranspor
 
 ## Installation
 
+#### Readme
+
+1) Add openupm registry.  Click on the menu Edit -> Project settings...,  and add a scoped registry like so: <br/>
+    Name: `OpenUPM` <br/>
+    Url: `https://package.openupm.com` <br/>
+    Scopes:
+    - `com.james-frowen`
+
+2) Close the project settings
+3) Open the package manager.  
+4) Click on menu Window -> Package Manager and select "Packages: My Registries", 
+5) select the latest version of `SimpleWebSocket` and click install, like so:
+6) You may come back to the package manager to unistall `SimpleWebSocket` or upgrade it.
+
+
 ## Usage
+
