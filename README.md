@@ -10,14 +10,13 @@ This uses [SimpleWebTransport](https://github.com/James-Frowen/SimpleWebTranspor
 
 ## Installation
 
-#### Readme
+#### openUPM
 
 1) Add openupm registry.  Click on the menu Edit -> Project settings...,  and add a scoped registry like so: <br/>
     Name: `OpenUPM` <br/>
     Url: `https://package.openupm.com` <br/>
     Scopes:
     - `com.james-frowen`
-
 2) Close the project settings
 3) Open the package manager.  
 4) Click on menu Window -> Package Manager and select "Packages: My Registries", 
