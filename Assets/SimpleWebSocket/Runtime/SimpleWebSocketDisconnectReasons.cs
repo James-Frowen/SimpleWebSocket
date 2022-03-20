@@ -1,4 +1,4 @@
-﻿namespace JamesFrowen.Mirage.Sockets.SimpleWeb
+namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 {
     public enum SimpleWebSocketDisconnectReasons
     {
