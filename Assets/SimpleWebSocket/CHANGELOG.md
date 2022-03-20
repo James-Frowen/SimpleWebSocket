@@ -1,3 +1,18 @@
+# [2.0.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v1.0.0...v2.0.0) (2022-03-20)
+
+
+### Bug Fixes
+
+* updating simplewebtransport to v1.3.0 ([f4237c6](https://github.com/James-Frowen/SimpleWebSocket/commit/f4237c6f06bef47826daafc31fb32c840dbb1d0e))
+
+
+* feat!: adding MaxPacketSize for Mirage v120 ([254cf87](https://github.com/James-Frowen/SimpleWebSocket/commit/254cf875c1e10a6de4d513bb4a97c3aa5f1b68a8))
+
+
+### BREAKING CHANGES
+
+* requires upgrade to Mirage v120
+
 # 1.0.0 (2021-12-16)
 
 
