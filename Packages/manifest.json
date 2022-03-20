@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.james-frowen.simplewebtransport": "1.2.4",
+    "com.james-frowen.simplewebtransport": "1.3.0",
     "com.miragenet.mirage": "120.0.0",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.ide.rider": "1.1.4",

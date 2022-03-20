@@ -8,7 +8,7 @@
       "url": "https://package.openupm.com"
     },
     "com.james-frowen.simplewebtransport": {
-      "version": "1.2.4",
+      "version": "1.3.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
