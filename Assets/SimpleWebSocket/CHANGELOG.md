@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/James-Frowen/SimpleWebSocket/compare/v2.0.0...v2.0.1) (2022-04-26)
+
+
+### Bug Fixes
+
+* fixing gui conflicts with multiplexsocket ([2a35b4c](https://github.com/James-Frowen/SimpleWebSocket/commit/2a35b4c29eeedaba24f109162f2faa799aff95c8))
+
 # [2.0.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v1.0.0...v2.0.0) (2022-03-20)
 
 
