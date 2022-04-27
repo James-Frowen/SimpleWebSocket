@@ -12,17 +12,17 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 
         private readonly TcpConfig tcpConfig;
         private readonly int maxMessageSize;
-        private readonly SslConfig sslConfig;
+        private readonly bool useWss;
 
         private SimpleWebClient client;
 
         SimpleWebEndPoint ReceiveEndpoint;
 
-        public ClientWebSocket(TcpConfig tcpConfig, int maxMessageSize, SslConfig sslConfig)
+        public ClientWebSocket(TcpConfig tcpConfig, int maxMessageSize, bool useWss)
         {
             this.tcpConfig = tcpConfig;
             this.maxMessageSize = maxMessageSize;
-            this.sslConfig = sslConfig;
+            this.useWss = useWss;
         }
 
         public void Bind(IEndPoint endPoint)
@@ -50,7 +50,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 
             client.Connect(builder.Uri);
         }
-        string GetClientScheme() => (sslConfig.enabled) ? SecureScheme : NormalScheme;
+        string GetClientScheme() => useWss ? SecureScheme : NormalScheme;
 
         public bool Poll()
         {

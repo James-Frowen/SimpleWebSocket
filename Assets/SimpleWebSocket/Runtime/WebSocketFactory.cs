@@ -59,8 +59,8 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         public override ISocket CreateClientSocket()
         {
             // todo get max message size somewhere else?
-            SslConfig sslConfig = SslConfigLoader.Load(sslEnabled || clientUseWss, sslCertJson, sslProtocols);
-            return new ClientWebSocket(tcpConfig, MaxPacketSize, sslConfig);
+            bool useWss = sslEnabled || clientUseWss;
+            return new ClientWebSocket(tcpConfig, MaxPacketSize, useWss);
         }
 
         public override ISocket CreateServerSocket()
