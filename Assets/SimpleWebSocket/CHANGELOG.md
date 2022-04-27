@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/James-Frowen/SimpleWebSocket/compare/v2.0.1...v2.0.2) (2022-04-27)
+
+
+### Bug Fixes
+
+* moving setup to constructor so that it throws if there is a problem instead of bind ([24cd0d6](https://github.com/James-Frowen/SimpleWebSocket/commit/24cd0d6c0e2256ec8a68ee3f44d86085686d1d42))
+
 ## [2.0.1](https://github.com/James-Frowen/SimpleWebSocket/compare/v2.0.0...v2.0.1) (2022-04-26)
 
 
