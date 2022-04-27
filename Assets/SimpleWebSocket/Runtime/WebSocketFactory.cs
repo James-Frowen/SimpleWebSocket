@@ -71,7 +71,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             }
 
             // todo get max message size somewhere else?
-            SslConfig sslConfig = SslConfigLoader.Load(sslEnabled || clientUseWss, sslCertJson, sslProtocols);
+            SslConfig sslConfig = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
             return new ServerWebSocket(tcpConfig, MaxPacketSize, sslConfig);
         }
 
