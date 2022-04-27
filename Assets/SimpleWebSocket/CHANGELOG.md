@@ -1,3 +1,11 @@
+## [2.0.3](https://github.com/James-Frowen/SimpleWebSocket/compare/v2.0.2...v2.0.3) (2022-04-27)
+
+
+### Bug Fixes
+
+* fixing ssl on client ([a6cad48](https://github.com/James-Frowen/SimpleWebSocket/commit/a6cad489871173679b2336f1caddf598f9ed4a0d))
+* server should only use ssl for sslEnabled ([0a1a8e8](https://github.com/James-Frowen/SimpleWebSocket/commit/0a1a8e85221fd9f1a30c45931907f46f93d7e997))
+
 ## [2.0.2](https://github.com/James-Frowen/SimpleWebSocket/compare/v2.0.1...v2.0.2) (2022-04-27)
 
 
