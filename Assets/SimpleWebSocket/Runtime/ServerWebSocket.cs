@@ -22,13 +22,13 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             this.tcpConfig = tcpConfig;
             this.maxMessageSize = maxMessageSize;
             this.sslConfig = sslConfig;
+
+            pool = new BufferPool(5, 20, maxMessageSize);
+            server = new WebSocketServer(tcpConfig, maxMessageSize, Math.Min(maxMessageSize, handshakeMaxSize), sslConfig, pool);
         }
 
         public void Bind(IEndPoint endPoint)
         {
-            pool = new BufferPool(5, 20, maxMessageSize);
-            server = new WebSocketServer(tcpConfig, maxMessageSize, Math.Min(maxMessageSize, handshakeMaxSize), sslConfig, pool);
-
             var swEndPoint = (SimpleWebEndPoint)endPoint;
             server.Listen(swEndPoint.Port);
         }
