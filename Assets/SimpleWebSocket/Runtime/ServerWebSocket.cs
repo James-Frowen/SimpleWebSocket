@@ -10,12 +10,11 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         private readonly TcpConfig tcpConfig;
         private readonly int maxMessageSize;
         private readonly SslConfig sslConfig;
-        const int handshakeMaxSize = 3000;
+        private const int handshakeMaxSize = 3000;
 
         private BufferPool pool;
         private WebSocketServer server;
-
-        SimpleWebEndPoint ReceiveEndpoint = new SimpleWebEndPoint();
+        private SimpleWebEndPoint ReceiveEndpoint = new SimpleWebEndPoint();
 
         public ServerWebSocket(TcpConfig tcpConfig, int maxMessageSize, SslConfig sslConfig)
         {
@@ -29,7 +28,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 
         public void Bind(IEndPoint endPoint)
         {
-            var swEndPoint = (SimpleWebEndPoint)endPoint;
+            var swEndPoint = (BindEndPoint)endPoint;
             server.Listen(swEndPoint.Port);
         }
 

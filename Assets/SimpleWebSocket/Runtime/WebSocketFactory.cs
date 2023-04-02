@@ -8,11 +8,15 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 {
     public sealed class WebSocketFactory : SocketFactory, IHasAddress, IHasPort
     {
-        string IHasAddress.Address { get => address; set => address = value; }
-        int IHasPort.Port { get => port; set => port = value; }
+        string IHasAddress.Address { get => ClientUri; set => ClientUri = value; }
+        int IHasPort.Port { get => ServerPort; set => ServerPort = value; }
 
-        public string address = "localhost";
-        public int port = 7777;
+        [Tooltip("Port for serer to listen on")]
+        public int ServerPort = 7777;
+
+        [Tooltip("Address client will use to connect. If using a reverse proxy, this should be the path and port for that. note, Scheme will be changed based on if SSL is being used")]
+        public string ClientUri = "ws://localhost:80/path";
+
         public TcpConfig tcpConfig;
 
         [Tooltip("Note this sets Buffer size for socket layer, so larger numbers will require more memory.")]
@@ -29,7 +33,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 
         [Header("Debug")]
         [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed. DEBUG allows warn/error, SIMPLEWEB_LOG_ENABLED allows all")]
-        [SerializeField] Log.Levels _logLevels = Log.Levels.none;
+        [SerializeField] private Log.Levels _logLevels = Log.Levels.none;
 
         /// <summary>
         /// <para>Gets _logLevels field</para>
@@ -45,11 +49,12 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             }
         }
 
-        void OnValidate()
+        private void OnValidate()
         {
             Log.level = _logLevels;
         }
-        void Awake()
+
+        private void Awake()
         {
             Log.level = _logLevels;
         }
@@ -77,15 +82,23 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 
         public override IEndPoint GetBindEndPoint()
         {
-            return new SimpleWebEndPoint(default, port);
+            return new BindEndPoint(ServerPort);
         }
 
         public override IEndPoint GetConnectEndPoint(string address = null, ushort? port = null)
         {
-            string addressString = address ?? this.address;
-            ushort portIn = port ?? (ushort)this.port;
+            UriBuilder builder;
+            if (string.IsNullOrEmpty(address))
+                builder = new UriBuilder(ClientUri);
+            else
+                builder = new UriBuilder(address);
 
-            return new SimpleWebEndPoint(addressString, portIn);
+            if (port.HasValue)
+            {
+                builder.Port = (int)port;
+            }
+
+            return new SimpleWebEndPoint(builder.Uri);
         }
 
         private static bool IsWebgl => Application.platform == RuntimePlatform.WebGLPlayer;

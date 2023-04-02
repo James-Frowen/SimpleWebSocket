@@ -1,24 +1,23 @@
-﻿using Mirage.SocketLayer;
+using System;
+using Mirage.SocketLayer;
 
 namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 {
     public class SimpleWebEndPoint : IEndPoint
     {
-        public string HostName;
-        public ushort Port;
         internal int ConnectionId;
 
-        public SimpleWebEndPoint(string hostName, int port) : this(hostName, checked((ushort)port)) { }
-        public SimpleWebEndPoint(string hostName, ushort port)
+        public readonly Uri Uri;
+        public readonly int ServerPort;
+
+        public SimpleWebEndPoint(Uri uri)
         {
-            HostName = hostName;
-            Port = port;
+            Uri = uri;
         }
         internal SimpleWebEndPoint() { }
         private SimpleWebEndPoint(SimpleWebEndPoint other)
         {
-            HostName = other.HostName;
-            Port = other.Port;
+            Uri = other.Uri;
             ConnectionId = other.ConnectionId;
         }
 
@@ -32,8 +31,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
                     if (ConnectionId != 0)
                         return true;
 
-                    // if no idea, check if other props are equal
-                    return HostName.Equals(other.HostName) && Port.Equals(other.Port);
+                    return Uri.Equals(other.Uri);
                 }
 
 
@@ -47,7 +45,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             if (ConnectionId != 0)
                 return ConnectionId;
 
-            return HostName.GetHashCode() ^ Port.GetHashCode();
+            return Uri.GetHashCode();
         }
 
         public override string ToString()
@@ -55,7 +53,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             if (ConnectionId != 0)
                 return $"Active connection:{ConnectionId}";
             else
-                return $"{HostName}:{Port}";
+                return $"{Uri}";
         }
 
         IEndPoint IEndPoint.CreateCopy()

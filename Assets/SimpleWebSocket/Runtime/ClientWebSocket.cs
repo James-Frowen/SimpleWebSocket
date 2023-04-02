@@ -15,8 +15,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         private readonly bool useWss;
 
         private SimpleWebClient client;
-
-        SimpleWebEndPoint ReceiveEndpoint;
+        private SimpleWebEndPoint ReceiveEndpoint;
 
         public ClientWebSocket(TcpConfig tcpConfig, int maxMessageSize, bool useWss)
         {
@@ -41,16 +40,14 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             client = SimpleWebClient.Create(maxMessageSize, 10_000, tcpConfig);
 
             ReceiveEndpoint = (SimpleWebEndPoint)endPoint;
-            var builder = new UriBuilder
-            {
-                Scheme = GetClientScheme(),
-                Host = ReceiveEndpoint.HostName,
-                Port = ReceiveEndpoint.Port
-            };
+
+            var builder = new UriBuilder(ReceiveEndpoint.Uri);
+            builder.Scheme = GetClientScheme();
 
             client.Connect(builder.Uri);
         }
-        string GetClientScheme() => useWss ? SecureScheme : NormalScheme;
+
+        private string GetClientScheme() => useWss ? SecureScheme : NormalScheme;
 
         public bool Poll()
         {
