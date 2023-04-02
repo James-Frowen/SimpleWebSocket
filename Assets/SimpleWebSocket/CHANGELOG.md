@@ -1,3 +1,13 @@
+# [3.0.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v2.0.3...v3.0.0) (2023-04-02)
+
+
+* fix!: allowing uri to be used by endpoint ([4dfff2d](https://github.com/James-Frowen/SimpleWebSocket/commit/4dfff2d096f35c5293f75cdc10c4e5ecf895c925))
+
+
+### BREAKING CHANGES
+
+* splitting address to server and client
+
 ## [2.0.3](https://github.com/James-Frowen/SimpleWebSocket/compare/v2.0.2...v2.0.3) (2022-04-27)
 
 
