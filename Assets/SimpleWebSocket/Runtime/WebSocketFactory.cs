@@ -1,5 +1,6 @@
 using System;
 using System.Security.Authentication;
+using JamesFrowen.Mirage.Sockets.SimpleWeb;
 using JamesFrowen.SimpleWeb;
 using Mirage.SocketLayer;
 using UnityEngine;
@@ -14,8 +15,10 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         [Tooltip("Port for serer to listen on")]
         public int ServerPort = 7777;
 
+        public ClientPortSettings ClientPort = new ClientPortSettings { Option = ClientPortOptions.SameAsServer };
+
         [Tooltip("Address client will use to connect. If using a reverse proxy, this should be the path and port for that. note, Scheme will be changed based on if SSL is being used")]
-        public string ClientUri = "ws://localhost:80/path";
+        public string ClientUri = "ws://localhost/path";
 
         public TcpConfig tcpConfig;
 
@@ -103,4 +106,75 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 
         private static bool IsWebgl => Application.platform == RuntimePlatform.WebGLPlayer;
     }
+
+    [Serializable]
+    public struct ClientPortSettings
+    {
+        public ClientPortOptions Option;
+        public ushort CustomPort;
+    }
+    public enum ClientPortOptions
+    {
+        SameAsServer,
+        HttpDefault,
+        Custom
+    }
+}
+namespace Mirror.SimpleWeb.EditorScripts
+{
+#if UNITY_EDITOR
+    using UnityEditor;
+
+    [CustomPropertyDrawer(typeof(ClientPortSettings))]
+    public class ClientPortSettingsDrawer : PropertyDrawer
+    {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            // force exapnd
+            property.isExpanded = true;
+
+            var optionHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative(nameof(ClientPortSettings.Option)));
+            var portHeight = EditorGUI.GetPropertyHeight(property.FindPropertyRelative(nameof(ClientPortSettings.CustomPort)));
+            var spacing = EditorGUIUtility.standardVerticalSpacing;
+            return optionHeight + spacing + portHeight;
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            var optionProp = property.FindPropertyRelative(nameof(ClientPortSettings.Option));
+            var portProp = property.FindPropertyRelative(nameof(ClientPortSettings.CustomPort));
+
+            var optionHeight = EditorGUI.GetPropertyHeight(optionProp);
+            var portHeight = EditorGUI.GetPropertyHeight(portProp);
+            var spacing = EditorGUIUtility.standardVerticalSpacing;
+
+            position.height = optionHeight;
+            EditorGUI.PropertyField(position, optionProp);
+            position.y += spacing + optionHeight;
+            position.height = portHeight;
+
+            var option = (ClientPortOptions)optionProp.enumValueIndex;
+            if (option == ClientPortOptions.HttpDefault || option == ClientPortOptions.SameAsServer)
+            {
+                var port = 0;
+                if (property.serializedObject.targetObject is WebSocketFactory swt)
+                {
+                    if (option == ClientPortOptions.HttpDefault)
+                        port = swt.clientUseWss ? 443 : 80;
+                    else
+                        port = swt.ServerPort;
+                }
+
+                var wasEnabled = GUI.enabled;
+                GUI.enabled = false;
+                EditorGUI.IntField(position, new GUIContent("Client Port"), port);
+                GUI.enabled = wasEnabled;
+            }
+            else
+            {
+                EditorGUI.PropertyField(position, portProp);
+            }
+        }
+    }
+#endif
 }
