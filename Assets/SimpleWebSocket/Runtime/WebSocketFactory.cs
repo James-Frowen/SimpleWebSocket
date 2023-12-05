@@ -4,6 +4,10 @@ using JamesFrowen.Mirage.Sockets.SimpleWeb;
 using JamesFrowen.SimpleWeb;
 using Mirage.SocketLayer;
 using UnityEngine;
+using System.ComponentModel;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 {
@@ -67,7 +71,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         public override ISocket CreateClientSocket()
         {
             // todo get max message size somewhere else?
-            bool useWss = sslEnabled || clientUseWss;
+            var useWss = sslEnabled || clientUseWss;
             return new ClientWebSocket(tcpConfig, MaxPacketSize, useWss);
         }
 
@@ -79,7 +83,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             }
 
             // todo get max message size somewhere else?
-            SslConfig sslConfig = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
+            var sslConfig = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
             return new ServerWebSocket(tcpConfig, MaxPacketSize, sslConfig);
         }
 
@@ -100,6 +104,10 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             {
                 builder.Port = (int)port;
             }
+            else
+            {
+                builder.Port = ClientPort.GetPort(this);
+            }
 
             return new SimpleWebEndPoint(builder.Uri);
         }
@@ -111,7 +119,27 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
     public struct ClientPortSettings
     {
         public ClientPortOptions Option;
-        public ushort CustomPort;
+        public int CustomPort;
+
+        public int GetPort(WebSocketFactory factory)
+        {
+            return GetPort(Option, CustomPort, factory);
+        }
+
+        public static int GetPort(ClientPortOptions option, int customPort, WebSocketFactory factory)
+        {
+            switch (option)
+            {
+                case ClientPortOptions.SameAsServer:
+                    return factory.ServerPort;
+                case ClientPortOptions.HttpDefault:
+                    return factory.clientUseWss ? 443 : 80;
+                case ClientPortOptions.Custom:
+                    return customPort;
+                default:
+                    throw new InvalidEnumArgumentException(nameof(option), (int)option, typeof(ClientPortOptions));
+            }
+        }
     }
     public enum ClientPortOptions
     {
@@ -120,11 +148,9 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         Custom
     }
 }
+#if UNITY_EDITOR
 namespace Mirror.SimpleWeb.EditorScripts
 {
-#if UNITY_EDITOR
-    using UnityEditor;
-
     [CustomPropertyDrawer(typeof(ClientPortSettings))]
     public class ClientPortSettingsDrawer : PropertyDrawer
     {
@@ -159,10 +185,7 @@ namespace Mirror.SimpleWeb.EditorScripts
                 var port = 0;
                 if (property.serializedObject.targetObject is WebSocketFactory swt)
                 {
-                    if (option == ClientPortOptions.HttpDefault)
-                        port = swt.clientUseWss ? 443 : 80;
-                    else
-                        port = swt.ServerPort;
+                    port = ClientPortSettings.GetPort(option, 0, swt);
                 }
 
                 var wasEnabled = GUI.enabled;
@@ -176,5 +199,5 @@ namespace Mirror.SimpleWeb.EditorScripts
             }
         }
     }
-#endif
 }
+#endif
