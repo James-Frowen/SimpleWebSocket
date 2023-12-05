@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v3.0.0...v3.1.0) (2023-12-05)
+
+
+### Features
+
+* adding client port settings ([39cfaa0](https://github.com/James-Frowen/SimpleWebSocket/commit/39cfaa01c748a4b40138d532002f88501b41a074))
+
 # [3.0.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v2.0.3...v3.0.0) (2023-04-02)
 
 
