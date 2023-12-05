@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/James-Frowen/SimpleWebSocket/compare/v3.1.0...v3.1.1) (2023-12-05)
+
+
+### Bug Fixes
+
+* fixing use of new client port ([3fdfb1b](https://github.com/James-Frowen/SimpleWebSocket/commit/3fdfb1b55c4bd702708b21b2f0e1315b0eec905a))
+
 # [3.1.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v3.0.0...v3.1.0) (2023-12-05)
 
 
