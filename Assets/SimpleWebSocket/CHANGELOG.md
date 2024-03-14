@@ -1,3 +1,10 @@
+## [3.1.2](https://github.com/James-Frowen/SimpleWebSocket/compare/v3.1.1...v3.1.2) (2024-03-14)
+
+
+### Bug Fixes
+
+* updating SimpleWebTransport to version 1.6.5 for fixes ([585369e](https://github.com/James-Frowen/SimpleWebSocket/commit/585369ee1b23980a00617fc314b29b89dc039da3))
+
 ## [3.1.1](https://github.com/James-Frowen/SimpleWebSocket/compare/v3.1.0...v3.1.1) (2023-12-05)
 
 
