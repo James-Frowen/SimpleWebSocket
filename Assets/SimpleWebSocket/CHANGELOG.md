@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.0.0...v4.0.1) (2024-03-16)
+
+
+### Bug Fixes
+
+* updating unity version in package ([2ece3e6](https://github.com/James-Frowen/SimpleWebSocket/commit/2ece3e64592ab51481fa93e7031959b9deb3789d))
+
 # [4.0.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v3.1.2...v4.0.0) (2024-03-16)
 
 
