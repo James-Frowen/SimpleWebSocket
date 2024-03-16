@@ -1,3 +1,13 @@
+# [4.0.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v3.1.2...v4.0.0) (2024-03-16)
+
+
+* fix!: SWT version to fix Runtime in global scope ([76ea692](https://github.com/James-Frowen/SimpleWebSocket/commit/76ea692f2551784671a58af076280867ebc6e900))
+
+
+### BREAKING CHANGES
+
+* no longer supports unity 2020 or earlier
+
 ## [3.1.2](https://github.com/James-Frowen/SimpleWebSocket/compare/v3.1.1...v3.1.2) (2024-03-14)
 
 
