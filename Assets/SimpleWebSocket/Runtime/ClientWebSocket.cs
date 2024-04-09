@@ -13,15 +13,16 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         private readonly TcpConfig tcpConfig;
         private readonly int maxMessageSize;
         private readonly bool useWss;
-
+        private readonly bool allowSslErrors;
         private SimpleWebClient client;
         private SimpleWebEndPoint ReceiveEndpoint;
 
-        public ClientWebSocket(TcpConfig tcpConfig, int maxMessageSize, bool useWss)
+        public ClientWebSocket(TcpConfig tcpConfig, int maxMessageSize, bool useWss, bool allowSslErrors)
         {
             this.tcpConfig = tcpConfig;
             this.maxMessageSize = maxMessageSize;
             this.useWss = useWss;
+            this.allowSslErrors = allowSslErrors;
         }
 
         public void Bind(IEndPoint endPoint)
@@ -37,7 +38,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 
         public void Connect(IEndPoint endPoint)
         {
-            client = SimpleWebClient.Create(maxMessageSize, 10_000, tcpConfig);
+            client = SimpleWebClient.Create(maxMessageSize, 10_000, tcpConfig, allowSslErrors);
 
             ReceiveEndpoint = (SimpleWebEndPoint)endPoint;
 

@@ -41,6 +41,8 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         [Header("Debug")]
         [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed. DEBUG allows warn/error, SIMPLEWEB_LOG_ENABLED allows all")]
         [SerializeField] private Log.Levels _logLevels = Log.Levels.none;
+        [Tooltip("Allows self signed certs (ONLY USE FOR DEBUGGING)")]
+        [SerializeField] private bool allowSslErrors = false;
 
         /// <summary>
         /// <para>Gets _logLevels field</para>
@@ -72,7 +74,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         {
             // todo get max message size somewhere else?
             var useWss = sslEnabled || clientUseWss;
-            return new ClientWebSocket(tcpConfig, MaxPacketSize, useWss);
+            return new ClientWebSocket(tcpConfig, MaxPacketSize, useWss, allowSslErrors);
         }
 
         public override ISocket CreateServerSocket()

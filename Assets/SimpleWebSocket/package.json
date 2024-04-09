@@ -11,7 +11,7 @@
     },
     "dependencies": {
         "com.miragenet.mirage": "120.0.0",
-        "com.james-frowen.simplewebtransport": "2.0.1"
+        "com.james-frowen.simplewebtransport": "2.1.1"
     },
     "samples": []
 }
