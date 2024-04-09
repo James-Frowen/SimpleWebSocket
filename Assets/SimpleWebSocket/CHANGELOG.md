@@ -1,3 +1,10 @@
+# [4.1.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.0.1...v4.1.0) (2024-04-09)
+
+
+### Features
+
+* adding option to allow ssl errors. Useful when testing with self signed cert ([46cf1fd](https://github.com/James-Frowen/SimpleWebSocket/commit/46cf1fdc14db44a741a22ffc1187399bb4749c17))
+
 ## [4.0.1](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.0.0...v4.0.1) (2024-03-16)
 
 
