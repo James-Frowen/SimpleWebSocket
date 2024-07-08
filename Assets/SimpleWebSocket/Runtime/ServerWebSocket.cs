@@ -10,20 +10,19 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         private readonly TcpConfig tcpConfig;
         private readonly int maxMessageSize;
         private readonly SslConfig sslConfig;
-        private const int handshakeMaxSize = 3000;
 
         private BufferPool pool;
         private WebSocketServer server;
         private SimpleWebEndPoint ReceiveEndpoint = new SimpleWebEndPoint();
 
-        public ServerWebSocket(TcpConfig tcpConfig, int maxMessageSize, SslConfig sslConfig)
+        public ServerWebSocket(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig)
         {
             this.tcpConfig = tcpConfig;
             this.maxMessageSize = maxMessageSize;
             this.sslConfig = sslConfig;
 
             pool = new BufferPool(5, 20, maxMessageSize);
-            server = new WebSocketServer(tcpConfig, maxMessageSize, Math.Min(maxMessageSize, handshakeMaxSize), sslConfig, pool);
+            server = new WebSocketServer(tcpConfig, maxMessageSize, handshakeMaxSize, sslConfig, pool);
         }
 
         public void Bind(IEndPoint endPoint)

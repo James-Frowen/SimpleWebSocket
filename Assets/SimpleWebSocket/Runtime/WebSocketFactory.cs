@@ -29,6 +29,9 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         [Tooltip("Note this sets Buffer size for socket layer, so larger numbers will require more memory.")]
         public int _maxPacketSize = 16384;
 
+        [Tooltip("Note this sets Buffer size for socket layer, so larger numbers will require more memory.")]
+        public int _maxHandshakeSize = 16384;
+
         [Header("Ssl Settings")]
         [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport, NOTE: if sslEnabled is true clientUseWss is also true")]
         public bool clientUseWss;
@@ -86,7 +89,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 
             // todo get max message size somewhere else?
             var sslConfig = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
-            return new ServerWebSocket(tcpConfig, MaxPacketSize, sslConfig);
+            return new ServerWebSocket(tcpConfig, MaxPacketSize, _maxHandshakeSize, sslConfig);
         }
 
         public override IEndPoint GetBindEndPoint()
