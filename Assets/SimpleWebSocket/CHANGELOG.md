@@ -1,3 +1,10 @@
+## [4.1.1](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.0...v4.1.1) (2024-07-08)
+
+
+### Bug Fixes
+
+* adding field for max handshake size ([93b6c52](https://github.com/James-Frowen/SimpleWebSocket/commit/93b6c52ffd797c84b0c1328a39dba24c86f41e49))
+
 # [4.1.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.0.1...v4.1.0) (2024-04-09)
 
 
