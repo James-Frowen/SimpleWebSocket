@@ -1,3 +1,10 @@
+## [4.1.3](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.2...v4.1.3) (2024-09-15)
+
+
+### Bug Fixes
+
+* adding tooltips and default values for TcpConfig ([7b95410](https://github.com/James-Frowen/SimpleWebSocket/commit/7b95410a9be51e1e88fe00e12adec82ce7ce7706))
+
 ## [4.1.2](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.1...v4.1.2) (2024-09-15)
 
 
