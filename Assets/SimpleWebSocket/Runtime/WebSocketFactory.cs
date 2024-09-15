@@ -33,6 +33,7 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         public int receiveTimeout = 20000;
         private TcpConfig tcpConfig => new TcpConfig(noDelay, sendTimeout, receiveTimeout);
 
+        [Header("Websocket Config")]
         [Tooltip("Note this sets Buffer size for socket layer, so larger numbers will require more memory.")]
         public int _maxPacketSize = 16384;
 
