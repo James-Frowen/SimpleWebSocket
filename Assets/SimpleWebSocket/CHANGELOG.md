@@ -1,3 +1,10 @@
+## [4.1.4](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.3...v4.1.4) (2024-09-15)
+
+
+### Bug Fixes
+
+* adding inspector header ([f28f162](https://github.com/James-Frowen/SimpleWebSocket/commit/f28f1622aa981805359cbcd9264ad17f01e2db24))
+
 ## [4.1.3](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.2...v4.1.3) (2024-09-15)
 
 
