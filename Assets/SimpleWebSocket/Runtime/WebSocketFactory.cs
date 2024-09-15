@@ -25,9 +25,12 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         public string ClientUri = "ws://localhost/path";
 
         [Header("Tcp Config")]
-        public bool noDelay;
-        public int sendTimeout;
-        public int receiveTimeout;
+        [Tooltip("disables nagle algorithm. lowers CPU% and latency but increases bandwidth")]
+        public bool noDelay = true;
+        [Tooltip("Send would stall forever if the network is cut off during a send, so we need a timeout (in milliseconds)")]
+        public int sendTimeout = 5000;
+        [Tooltip("How long without a message before disconnecting (in milliseconds)")]
+        public int receiveTimeout = 20000;
         private TcpConfig tcpConfig => new TcpConfig(noDelay, sendTimeout, receiveTimeout);
 
         [Tooltip("Note this sets Buffer size for socket layer, so larger numbers will require more memory.")]
