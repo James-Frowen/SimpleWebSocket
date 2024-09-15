@@ -24,7 +24,11 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         [Tooltip("Address client will use to connect. If using a reverse proxy, this should be the path and port for that. note, Scheme will be changed based on if SSL is being used")]
         public string ClientUri = "ws://localhost/path";
 
-        public TcpConfig tcpConfig;
+        [Header("Tcp Config")]
+        public bool noDelay;
+        public int sendTimeout;
+        public int receiveTimeout;
+        private TcpConfig tcpConfig => new TcpConfig(noDelay, sendTimeout, receiveTimeout);
 
         [Tooltip("Note this sets Buffer size for socket layer, so larger numbers will require more memory.")]
         public int _maxPacketSize = 16384;
