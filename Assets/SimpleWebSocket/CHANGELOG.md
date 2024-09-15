@@ -1,3 +1,10 @@
+## [4.1.2](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.1...v4.1.2) (2024-09-15)
+
+
+### Bug Fixes
+
+* fixing TcpConfig now showing in inspector ([5d19d2c](https://github.com/James-Frowen/SimpleWebSocket/commit/5d19d2ccba4409318aa65381857df029f275eb37))
+
 ## [4.1.1](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.0...v4.1.1) (2024-07-08)
 
 
