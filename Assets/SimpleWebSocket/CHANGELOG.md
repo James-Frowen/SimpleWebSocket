@@ -1,3 +1,10 @@
+## [4.1.5](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.4...v4.1.5) (2024-10-01)
+
+
+### Bug Fixes
+
+* updating SWT to version 2.2.2 ([9bc3797](https://github.com/James-Frowen/SimpleWebSocket/commit/9bc3797222a0dc875d31aad7e3a3074a1d1d8efc))
+
 ## [4.1.4](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.3...v4.1.4) (2024-09-15)
 
 
