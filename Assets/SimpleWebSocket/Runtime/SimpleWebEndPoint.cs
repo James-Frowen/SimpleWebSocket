@@ -3,62 +3,43 @@ using Mirage.SocketLayer;
 
 namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 {
-    public class SimpleWebEndPoint : IEndPoint
+    public class SimpleWebConnectionHandle : IConnectionHandle
     {
-        internal int ConnectionId;
+        public readonly JamesFrowen.SimpleWeb.IConnection ServerConnection;
+        private readonly Action<SimpleWebConnectionHandle> DisconnectCallback;
 
-        public readonly Uri Uri;
-        public readonly int ServerPort;
-
-        public SimpleWebEndPoint(Uri uri)
+        public SimpleWebConnectionHandle(Action<SimpleWebConnectionHandle> disconnectCallback, JamesFrowen.SimpleWeb.IConnection connection)
         {
-            Uri = uri;
-        }
-        internal SimpleWebEndPoint() { }
-        private SimpleWebEndPoint(SimpleWebEndPoint other)
-        {
-            Uri = other.Uri;
-            ConnectionId = other.ConnectionId;
+            DisconnectCallback = disconnectCallback;
+            ServerConnection = connection;
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is SimpleWebEndPoint other)
-            {
-                if (ConnectionId == other.ConnectionId)
-                {
-                    // if it has id, then they are the same
-                    if (ConnectionId != 0)
-                        return true;
-
-                    return Uri.Equals(other.Uri);
-                }
-
-
-                return false;
-            }
-            return false;
+            // each connection should have its own c# object
+            return ReferenceEquals(this, obj);
         }
 
         public override int GetHashCode()
         {
-            if (ConnectionId != 0)
-                return ConnectionId;
-
-            return Uri.GetHashCode();
+            return ServerConnection?.Id ?? base.GetHashCode();
         }
 
         public override string ToString()
         {
-            if (ConnectionId != 0)
-                return $"Active connection:{ConnectionId}";
-            else
-                return $"{Uri}";
+            return ServerConnection != null
+                ? $"Active connection:{ServerConnection.Id}"
+                : $"Active connection:Client";
         }
 
-        IEndPoint IEndPoint.CreateCopy()
+        IConnectionHandle IConnectionHandle.CreateCopy() => throw new NotSupportedException("Create copy should not be called for Stateful connections");
+
+        bool IConnectionHandle.IsStateful => true;
+        ISocketLayerConnection IConnectionHandle.SocketLayerConnection { get; set; }
+        bool IConnectionHandle.SupportsGracefulDisconnect => false;
+        void IConnectionHandle.Disconnect(string gracefulDisconnectReason)
         {
-            return new SimpleWebEndPoint(this);
+            DisconnectCallback?.Invoke(this);
         }
     }
 }

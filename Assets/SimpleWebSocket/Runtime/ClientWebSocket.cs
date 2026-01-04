@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Concurrent;
 using JamesFrowen.SimpleWeb;
 using Mirage.SocketLayer;
-using EventType = JamesFrowen.SimpleWeb.EventType;
 
 namespace JamesFrowen.Mirage.Sockets.SimpleWeb
 {
-    public class ClientWebSocket : ISocket
+    public class ClientWebSocket : CommonWebSocket
     {
         public const string NormalScheme = "ws";
         public const string SecureScheme = "wss";
@@ -15,7 +15,6 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         private readonly bool useWss;
         private readonly bool allowSslErrors;
         private SimpleWebClient client;
-        private SimpleWebEndPoint ReceiveEndpoint;
 
         public ClientWebSocket(TcpConfig tcpConfig, int maxMessageSize, bool useWss, bool allowSslErrors)
         {
@@ -25,80 +24,36 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             this.allowSslErrors = allowSslErrors;
         }
 
-        public void Bind(IEndPoint endPoint)
+        public override IConnectionHandle Connect(IConnectEndPoint _endPoint)
         {
-            throw new NotSupportedException();
+            client = SimpleWebClient.Create(maxMessageSize, 10_000, tcpConfig, allowSslErrors);
+            var endPoint = (ConnectEndPoint)_endPoint;
+            var scheme = useWss ? SecureScheme : NormalScheme;
+            var builder = new UriBuilder(scheme, endPoint.address, endPoint.port);
+            client.Connect(builder.Uri);
+            var handle = new SimpleWebConnectionHandle(MirageDisconnected, null);
+            return handle;
         }
 
-        public void Close()
+        public override void Close()
         {
             client?.Disconnect();
             client = null;
         }
 
-        public void Connect(IEndPoint endPoint)
+        protected override ConcurrentQueue<Message> GetReceiveQueue()
         {
-            client = SimpleWebClient.Create(maxMessageSize, 10_000, tcpConfig, allowSslErrors);
-
-            ReceiveEndpoint = (SimpleWebEndPoint)endPoint;
-
-            var builder = new UriBuilder(ReceiveEndpoint.Uri);
-            builder.Scheme = GetClientScheme();
-
-            client.Connect(builder.Uri);
+            return client.receiveQueue;
         }
 
-        private string GetClientScheme() => useWss ? SecureScheme : NormalScheme;
-
-        public bool Poll()
+        protected override void MirageDisconnected(SimpleWebConnectionHandle handle)
         {
-            return client.receiveQueue.Count > 0;
+            client.Disconnect();
         }
 
-        public int Receive(byte[] buffer, out IEndPoint endPoint)
+        public override void Send(IConnectionHandle _handle, ReadOnlySpan<byte> span)
         {
-            endPoint = ReceiveEndpoint;
-
-            bool result = client.receiveQueue.TryDequeue(out Message next);
-            if (!result)
-            {
-                throw new InvalidOperationException("No Packets in queue");
-            }
-
-            switch (next.type)
-            {
-                case EventType.Connected:
-                    {
-                        // use keep alive so this packet can just be thrown away
-                        buffer[0] = (byte)PacketType.KeepAlive;
-                        return 1;
-                    }
-                case EventType.Data:
-                    {
-                        next.data.CopyTo(buffer, 0);
-                        int count = next.data.count;
-                        next.data.Release();
-
-                        return count;
-                    }
-                case EventType.Error:
-                case EventType.Disconnected:
-                    {
-                        buffer[0] = (byte)PacketType.Command;
-                        buffer[1] = (byte)Commands.Disconnect;
-                        buffer[2] = (byte)(next.type == EventType.Disconnected ? SimpleWebSocketDisconnectReasons.SocketClosed : SimpleWebSocketDisconnectReasons.SocketError);
-                        return 3;
-                    }
-            }
-
-            // default, either endpoint not found or error.
-            endPoint = null;
-            return 0;
-        }
-
-        public void Send(IEndPoint endPoint, byte[] packet, int length)
-        {
-            client.Send(new ArraySegment<byte>(packet, 0, length));
+            client.Send(span);
         }
     }
 }

@@ -100,31 +100,20 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
             return new ServerWebSocket(tcpConfig, MaxPacketSize, _maxHandshakeSize, sslConfig);
         }
 
-        public override IEndPoint GetBindEndPoint()
+        public override IBindEndPoint GetBindEndPoint()
         {
             return new BindEndPoint(ServerPort);
         }
 
-        public override IEndPoint GetConnectEndPoint(string address = null, ushort? port = null)
+        public override IConnectEndPoint GetConnectEndPoint(string address = null, ushort? port = null)
         {
-            UriBuilder builder;
-            if (string.IsNullOrEmpty(address))
-                builder = new UriBuilder(ClientUri);
-            else
-                builder = new UriBuilder(address);
-
-            if (port.HasValue)
-            {
-                builder.Port = (int)port;
-            }
-            else
-            {
-                builder.Port = ClientPort.GetPort(this);
-            }
-
-            return new SimpleWebEndPoint(builder.Uri);
+            return new ConnectEndPoint(
+                string.IsNullOrEmpty(address) ? ClientUri : address,
+                port.HasValue ? (int)port : ClientPort.GetPort(this)
+            );
         }
 
+        public override bool IsSupported => true; // supported everywhere
         private static bool IsWebgl => Application.platform == RuntimePlatform.WebGLPlayer;
     }
 
