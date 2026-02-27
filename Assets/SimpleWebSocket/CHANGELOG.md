@@ -1,3 +1,20 @@
+# [5.0.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.5...v5.0.0) (2026-02-27)
+
+
+* fix!: updating to Mirage v156 for stateful connections support ([632c61e](https://github.com/James-Frowen/SimpleWebSocket/commit/632c61ea269eeb20aaaecd3097ea83d06e600a84))
+
+
+### Bug Fixes
+
+* updating SimpleWebTransport ([fa71db2](https://github.com/James-Frowen/SimpleWebSocket/commit/fa71db20bd31ee70c2681e6f101e6cc97ca6b488))
+* updating SimpleWebTransport to support WebAssembly 2023 ([7fc7fff](https://github.com/James-Frowen/SimpleWebSocket/commit/7fc7fff4d339f76ff321bff83f7e1f83c5952f73))
+
+
+### BREAKING CHANGES
+
+* - increasing minimum mirage version to v156.1.0
+- increasing minimum SimpleWebTransport version to v156.1.0
+
 ## [4.1.5](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.4...v4.1.5) (2024-10-01)
 
 
