@@ -1,3 +1,10 @@
+## [5.0.1](https://github.com/James-Frowen/SimpleWebSocket/compare/v5.0.0...v5.0.1) (2026-05-09)
+
+
+### Bug Fixes
+
+* updating simplewebtransport to v3.1.0 ([fb63e5f](https://github.com/James-Frowen/SimpleWebSocket/commit/fb63e5f4ad3bb7a950af343300cf692c916a30a1))
+
 # [5.0.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v4.1.5...v5.0.0) (2026-02-27)
 
 
