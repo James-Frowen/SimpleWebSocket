@@ -11,10 +11,10 @@ namespace JamesFrowen.Mirage.Sockets.SimpleWeb
         private BufferPool pool;
         private WebSocketServer server;
 
-        public ServerWebSocket(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig)
+        public ServerWebSocket(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig, int maxSendQueueSize)
         {
             pool = new BufferPool(5, 20, maxMessageSize);
-            server = new WebSocketServer(tcpConfig, maxMessageSize, handshakeMaxSize, sslConfig, pool);
+            server = new WebSocketServer(tcpConfig, maxMessageSize, handshakeMaxSize, sslConfig, pool, maxSendQueueSize);
         }
 
         public override void Bind(IBindEndPoint _endPoint)
