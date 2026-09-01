@@ -1,3 +1,10 @@
+# [5.1.0](https://github.com/James-Frowen/SimpleWebSocket/compare/v5.0.1...v5.1.0) (2026-09-01)
+
+
+### Features
+
+* adding maxSendQueueSize from SWT to limit how many message can be queued at once ([f7b9fd2](https://github.com/James-Frowen/SimpleWebSocket/commit/f7b9fd2a97642495149340a55d7cf9eb517ab665))
+
 ## [5.0.1](https://github.com/James-Frowen/SimpleWebSocket/compare/v5.0.0...v5.0.1) (2026-05-09)
 
 
