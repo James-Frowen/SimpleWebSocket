@@ -10,7 +10,7 @@
         "url": "https://github.com/James-Frowen/SimpleWebSocket"
     },
     "dependencies": {
-        "com.miragenet.mirage": "156.2.0",
+        "com.miragenet.mirage": "158.3.7",
         "com.james-frowen.simplewebtransport": "3.1.0"
     },
     "samples": []

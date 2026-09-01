@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.james-frowen.simplewebtransport": "3.0.2",
-    "com.miragenet.mirage": "156.2.0",
+    "com.james-frowen.simplewebtransport": "3.1.0",
+    "com.miragenet.mirage": "158.3.7",
     "com.unity.ide.rider": "3.0.36",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.ide.vscode": "1.2.5",

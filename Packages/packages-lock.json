@@ -8,19 +8,19 @@
       "url": "https://package.openupm.com"
     },
     "com.james-frowen.simplewebtransport": {
-      "version": "3.0.2",
+      "version": "3.1.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://package.openupm.com"
     },
     "com.miragenet.mirage": {
-      "version": "156.2.0",
+      "version": "158.3.7",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.nuget.mono-cecil": "1.10.1",
-        "com.cysharp.unitask": "2.3.3"
+        "com.cysharp.unitask": "2.3.3",
+        "com.unity.nuget.mono-cecil": "1.10.1"
       },
       "url": "https://package.openupm.com"
     },
